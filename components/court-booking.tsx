@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar } from "@/components/ui/calendar"
 import { Clock, MapPin, Star } from "lucide-react"
 import { BookingModal } from "@/components/booking-modal"
+import { initializeDemoData, getDemoCourts, getDemoAvailability } from "@/lib/demo-data"
 import type { Court } from "@/lib/models/Court"
 
 interface TimeSlot {
@@ -23,10 +24,18 @@ export function CourtBooking() {
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null)
   const [showBookingModal, setShowBookingModal] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchCourts()
+    console.log("🔧 Initializing demo data...")
+    initializeDemoData()
+    const demoCourts = getDemoCourts()
+    console.log("✓ Courts loaded:", demoCourts.length, demoCourts)
+    setCourts(demoCourts)
+    if (demoCourts.length > 0) {
+      setSelectedCourt(demoCourts[0])
+      console.log("✓ Court selected:", demoCourts[0].name)
+    }
+    setLoading(false)
   }, [])
 
   useEffect(() => {
@@ -35,74 +44,28 @@ export function CourtBooking() {
     }
   }, [selectedCourt, selectedDate])
 
-  const fetchCourts = async () => {
-    setErrorMessage(null)
-    try {
-      const response = await fetch("/api/courts")
-      if (!response.ok) {
-        const err = await response.json().catch(() => null)
-        const msg = err?.error || `Failed to load courts (${response.status})`
-        console.warn(msg)
-        setErrorMessage(msg)
-        setCourts([])
-        return
-      }
-
-      const data = await response.json()
-
-      if (Array.isArray(data)) {
-        setCourts(data)
-        if (data.length > 0) {
-          setSelectedCourt(data[0])
-        }
-      } else {
-        // Unexpected shape
-        const msg = typeof data === "object" && data?.error ? data.error : "No courts available"
-        console.warn("Unexpected courts response:", data)
-        setErrorMessage(msg)
-        setCourts([])
-      }
-    } catch (error) {
-      console.error("Error fetching courts:", error)
-      setErrorMessage("Error fetching courts")
-      setCourts([])
-    } finally {
-      setLoading(false)
+  const fetchAvailability = () => {
+    if (!selectedCourt) {
+      console.error("❌ No court selected for availability check")
+      return
     }
-  }
-
-  const fetchAvailability = async () => {
-    setErrorMessage(null)
-    if (!selectedCourt || !selectedDate) return
-
-    try {
-      const dateStr = selectedDate.toISOString().split("T")[0]
-      const response = await fetch(`/api/courts/${selectedCourt._id}/availability?date=${dateStr}`)
-      if (!response.ok) {
-        const err = await response.json().catch(() => null)
-        const msg = err?.error || `Failed to load availability (${response.status})`
-        console.warn(msg)
-        setErrorMessage(msg)
-        setAvailableSlots([])
-        return
-      }
-
-      const data = await response.json()
-      if (Array.isArray(data)) {
-        setAvailableSlots(data)
-      } else {
-        console.warn("Unexpected availability response:", data)
-        setAvailableSlots([])
-        setErrorMessage("No availability data")
-      }
-    } catch (error) {
-      console.error("Error fetching availability:", error)
-      setErrorMessage("Error fetching availability")
-      setAvailableSlots([])
-    }
+    const dateStr = selectedDate.toISOString().split("T")[0]
+    console.log(`🔍 Fetching availability for ${selectedCourt.name} on ${dateStr}...`)
+    const slots = getDemoAvailability(selectedCourt._id!, dateStr)
+    console.log(`✓ Available slots: ${slots.filter(s => s.isAvailable).length}/${slots.length}`, slots)
+    setAvailableSlots(slots)
   }
 
   const handleBookSlot = (slot: TimeSlot) => {
+    if (!selectedCourt) {
+      console.error("❌ No court selected")
+      return
+    }
+    if (!slot.isAvailable) {
+      console.error("❌ Slot is not available")
+      return
+    }
+    console.log("✓ Booking slot:", slot, "Court:", selectedCourt.name)
     setSelectedSlot(slot)
     setShowBookingModal(true)
   }
@@ -190,12 +153,7 @@ export function CourtBooking() {
                 ) : (
                   <Card>
                     <CardContent className="p-6 text-center">
-                      <p className="text-muted-foreground">{errorMessage || "No courts available at the moment."}</p>
-                      <div className="mt-4">
-                        <Button variant="ghost" size="sm" onClick={fetchCourts}>
-                          Retry
-                        </Button>
-                      </div>
+                      <p className="text-muted-foreground">No courts available at the moment.</p>
                     </CardContent>
                   </Card>
                 )}
@@ -211,8 +169,13 @@ export function CourtBooking() {
                     {availableSlots.map((slot) => (
                       <Button
                         key={slot.time}
-                        variant="outline"
-                        className="h-16 flex flex-col items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors bg-transparent"
+                        variant={slot.isAvailable ? "outline" : "ghost"}
+                        disabled={!slot.isAvailable}
+                        className={`h-16 flex flex-col items-center justify-center transition-colors ${
+                          slot.isAvailable
+                            ? "hover:bg-primary hover:text-primary-foreground bg-transparent"
+                            : "opacity-50 cursor-not-allowed"
+                        }`}
                         onClick={() => handleBookSlot(slot)}
                       >
                         <span className="font-semibold">{slot.time}</span>
@@ -260,10 +223,17 @@ export function CourtBooking() {
           court={selectedCourt}
           date={selectedDate}
           timeSlot={selectedSlot}
-          onClose={() => setShowBookingModal(false)}
+          onClose={() => {
+            setShowBookingModal(false)
+            setSelectedSlot(null)
+          }}
           onSuccess={() => {
             setShowBookingModal(false)
-            fetchAvailability() // Refresh availability
+            setSelectedSlot(null)
+            // Small delay to ensure state updates before refreshing
+            setTimeout(() => {
+              fetchAvailability() // Refresh availability
+            }, 300)
           }}
         />
       )}

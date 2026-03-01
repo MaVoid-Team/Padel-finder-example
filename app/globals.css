@@ -3,6 +3,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Cairo Font Configuration */
+@layer base {
+  body {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+  }
+}
+
 :root {
   --background: oklch(0.98 0.005 106.423); /* #f9fafb - soft background */
   --foreground: oklch(0.394 0.006 247.858); /* #4b5563 - primary text */

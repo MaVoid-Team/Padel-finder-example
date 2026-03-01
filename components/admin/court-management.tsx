@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Plus, Edit, Clock, DollarSign } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { saveDemoCourt } from "@/lib/demo-data"
 import type { Court } from "@/lib/models/Court"
 
 interface CourtManagementProps {
@@ -35,25 +36,31 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
     e.preventDefault()
     setLoading(true)
 
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 400))
+
     try {
-      const response = await fetch("/api/courts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      const newCourt = saveDemoCourt({
+        _id: editingCourt?._id,
+        name: formData.name,
+        description: formData.description,
+        openTime: formData.openTime,
+        closeTime: formData.closeTime,
+        pricePerHour: formData.pricePerHour,
+        isActive: true,
+        createdAt: editingCourt?.createdAt || new Date(),
+        updatedAt: new Date(),
       })
 
-      if (!response.ok) {
-        throw new Error("Failed to create court")
-      }
-
       toast({
-        title: "Court Created",
-        description: "New court has been added successfully",
+        title: editingCourt ? "Court Updated" : "Court Created",
+        description: editingCourt 
+          ? "Court has been updated successfully"
+          : "New court has been added successfully",
       })
 
       setShowAddDialog(false)
+      setEditingCourt(null)
       setFormData({
         name: "",
         description: "",
@@ -65,7 +72,7 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to create court",
+        description: "Failed to save court",
         variant: "destructive",
       })
     } finally {
@@ -73,11 +80,35 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
     }
   }
 
+  const handleEdit = (court: Court) => {
+    setEditingCourt(court)
+    setFormData({
+      name: court.name,
+      description: court.description || "",
+      openTime: court.openTime,
+      closeTime: court.closeTime,
+      pricePerHour: court.pricePerHour,
+    })
+    setShowAddDialog(true)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Court Management</h2>
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <Dialog open={showAddDialog} onOpenChange={(open) => {
+          setShowAddDialog(open)
+          if (!open) {
+            setEditingCourt(null)
+            setFormData({
+              name: "",
+              description: "",
+              openTime: "08:00",
+              closeTime: "22:00",
+              pricePerHour: 50,
+            })
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90">
               <Plus className="w-4 h-4 mr-2" />
@@ -86,7 +117,7 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Court</DialogTitle>
+              <DialogTitle>{editingCourt ? "Edit Court" : "Add New Court"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -150,7 +181,7 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
                   Cancel
                 </Button>
                 <Button type="submit" className="flex-1 bg-primary hover:bg-primary/90" disabled={loading}>
-                  {loading ? "Creating..." : "Create Court"}
+                  {loading ? editingCourt ? "Updating..." : "Creating..." : editingCourt ? "Update Court" : "Create Court"}
                 </Button>
               </div>
             </form>
@@ -169,7 +200,7 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
                     {court.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </CardTitle>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => handleEdit(court)}>
                   <Edit className="w-4 h-4 mr-2" />
                   Edit
                 </Button>

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Calendar, Clock, Mail, User, Phone, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { initializeDemoData, getDemoBookings, cancelDemoBooking } from "@/lib/demo-data"
 import type { Booking } from "@/lib/models/Booking"
 
 export function MyBookings() {
@@ -19,56 +20,50 @@ export function MyBookings() {
   const [showLookup, setShowLookup] = useState(true)
   const { toast } = useToast()
 
+  useEffect(() => {
+    initializeDemoData()
+  }, [])
+
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
 
     setLoading(true)
-    try {
-      const response = await fetch(`/api/bookings?email=${encodeURIComponent(email)}`)
-      const data = await response.json()
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 400))
+    
+    const allBookings = getDemoBookings()
+    const userBookings = allBookings.filter(b => b.playerEmail.toLowerCase() === email.toLowerCase())
 
-      if (response.ok) {
-        setBookings(data)
-        setShowLookup(false)
-      } else {
-        toast({
-          title: "No bookings found",
-          description: "No bookings found for this email address",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
+    if (userBookings.length > 0) {
+      setBookings(userBookings)
+      setShowLookup(false)
       toast({
-        title: "Error",
-        description: "Failed to fetch bookings",
+        title: "Bookings Found!",
+        description: `Found ${userBookings.length} booking(s) for ${email}`,
+      })
+    } else {
+      toast({
+        title: "No bookings found",
+        description: "No bookings found for this email address",
         variant: "destructive",
       })
-    } finally {
-      setLoading(false)
     }
+    setLoading(false)
   }
 
   const handleCancelBooking = async (bookingId: string) => {
     try {
-      const response = await fetch(`/api/bookings/${bookingId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: "cancelled" }),
-      })
-
-      if (response.ok) {
-        setBookings(
-          bookings.map((booking) => (booking._id === bookingId ? { ...booking, status: "cancelled" } : booking)),
-        )
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      const cancelled = cancelDemoBooking(bookingId)
+      if (cancelled) {
+        setBookings(bookings.map(b => b._id === bookingId ? cancelled : b))
         toast({
           title: "Booking Cancelled",
           description: "Your booking has been cancelled successfully",
         })
-      } else {
-        throw new Error("Failed to cancel booking")
       }
     } catch (error) {
       toast({

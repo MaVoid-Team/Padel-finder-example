@@ -11,6 +11,7 @@ import { CourtManagement } from "@/components/admin/court-management"
 import { UserManagement } from "@/components/admin/user-management"
 import { ReportsSection } from "@/components/admin/reports-section"
 import { AdvancedReports } from "@/components/admin/advanced-reports"
+import { initializeDemoData, getDemoBookings, getDemoCourts, getDashboardStats } from "@/lib/demo-data"
 import type { Booking } from "@/lib/models/Booking"
 import type { Court } from "@/lib/models/Court"
 
@@ -19,6 +20,8 @@ interface DashboardStats {
   totalRevenue: number
   activeUsers: number
   averageBookingDuration: number
+  activeCourts?: number
+  totalCourts?: number
 }
 
 export function AdminDashboard() {
@@ -33,39 +36,27 @@ export function AdminDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    initializeDemoData()
     fetchDashboardData()
   }, [])
 
-  const fetchDashboardData = async () => {
-    try {
-      // Fetch bookings
-      const bookingsResponse = await fetch("/api/bookings")
-      const bookings: Booking[] = await bookingsResponse.json()
+  const fetchDashboardData = () => {
+    const demoStats = getDashboardStats()
+    const demoBookings = getDemoBookings()
+    const demoCourts = getDemoCourts()
 
-      // Fetch courts
-      const courtsResponse = await fetch("/api/courts")
-      const courtsData: Court[] = await courtsResponse.json()
+    setStats({
+      totalBookings: demoStats.totalBookings,
+      totalRevenue: Math.round(demoStats.totalRevenue * 100) / 100,
+      activeUsers: demoStats.activeUsers,
+      averageBookingDuration: demoStats.averageBookingDuration,
+      activeCourts: demoStats.activeCourts,
+      totalCourts: demoStats.totalCourts,
+    })
 
-      // Calculate stats
-      const totalRevenue = bookings.reduce((sum, booking) => sum + booking.totalPrice, 0)
-      const uniqueUsers = new Set(bookings.map((booking) => booking.playerEmail)).size
-      const avgDuration =
-        bookings.length > 0 ? bookings.reduce((sum, booking) => sum + booking.duration, 0) / bookings.length : 0
-
-      setStats({
-        totalBookings: bookings.length,
-        totalRevenue,
-        activeUsers: uniqueUsers,
-        averageBookingDuration: Math.round(avgDuration),
-      })
-
-      setRecentBookings(bookings.slice(0, 5))
-      setCourts(courtsData)
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error)
-    } finally {
-      setLoading(false)
-    }
+    setRecentBookings(demoBookings.slice(0, 5))
+    setCourts(demoCourts)
+    setLoading(false)
   }
 
   if (loading) {
@@ -90,7 +81,7 @@ export function AdminDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage your padel club operations</p>
+            <p className="text-muted-foreground">Manage your padel club operations (Demo Mode)</p>
           </div>
           <Button className="bg-primary hover:bg-primary/90">
             <Plus className="w-4 h-4 mr-2" />
@@ -117,7 +108,7 @@ export function AdminDashboard() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">${stats.totalRevenue}</div>
+              <div className="text-2xl font-bold text-primary">${stats.totalRevenue.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">Total earnings</p>
             </CardContent>
           </Card>

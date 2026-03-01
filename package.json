@@ -5,9 +5,10 @@
   "packageManager": "pnpm@8",
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "build:pages": "node scripts/build-pages.mjs",
+    "dev": "next dev -p 3003",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start -p 3003"
   },
   "dependencies": {
     "@aws-sdk/credential-providers": "latest",
