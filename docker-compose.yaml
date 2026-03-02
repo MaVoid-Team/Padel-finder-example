@@ -4,7 +4,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     ports:
-      - "3964:3000"
+      - "3964:3003"
     networks:
       - app-network
     restart: unless-stopped

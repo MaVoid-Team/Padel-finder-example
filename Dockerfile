@@ -46,9 +46,9 @@ RUN adduser --system --uid 1001 nextjs
 RUN chown -R nextjs:nodejs /app
 USER nextjs
 
-EXPOSE 3000
+EXPOSE 3003
 
 ENV NODE_ENV production
-ENV PORT 3000
+ENV PORT 3003
 
 CMD ["npm", "start"]
