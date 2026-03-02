@@ -30,10 +30,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install only production dependencies
-RUN npm ci --only=production --force
+RUN npm install --omit=dev --force
 
 # Copy built application from build stage
-COPY --from=build /app/build ./build
+# Copy the Next.js build output (.next) from the build stage
+COPY --from=build /app/.next ./.next
 COPY --from=build /app/public ./public
 COPY --from=build /app/next.config.mjs ./
 
