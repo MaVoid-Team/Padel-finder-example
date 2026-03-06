@@ -42,15 +42,15 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
   }
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
             <MapPin className="w-5 h-5 text-primary" />
             {t("calendarView")}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex justify-center">
           <Calendar
             mode="single"
             selected={selectedDate}
@@ -64,11 +64,11 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("bookingsForDate")} {formatDate(selectedDate)}</CardTitle>
+          <CardTitle className="text-base md:text-lg">{t("bookingsForDate")} {formatDate(selectedDate)}</CardTitle>
         </CardHeader>
         <CardContent>
           {selectedDateBookings.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4 max-h-[500px] overflow-y-auto">
               {selectedDateBookings
                 .sort((a, b) => a.time.localeCompare(b.time))
                 .map((booking) => (

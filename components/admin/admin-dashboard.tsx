@@ -80,15 +80,15 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">{t("adminDashboard")}</h1>
-            <p className="text-muted-foreground">{t("adminSubtitle")}</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("adminDashboard")}</h1>
+            <p className="text-sm md:text-base text-muted-foreground">{t("adminSubtitle")}</p>
           </div>
-          <Button className="bg-primary hover:bg-primary/90">
+          <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             {t("quickActions")}
           </Button>
@@ -143,28 +143,32 @@ export function AdminDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="calendar" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="calendar" className="flex items-center gap-2">
-              <CalendarDays className="w-4 h-4" />
-              {t("calendarTab")}
-            </TabsTrigger>
-            <TabsTrigger value="courts" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              {t("courtsTab")}
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              {t("usersTab")}
-            </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              {t("reportsTab")}
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              {t("analyticsTab")}
-            </TabsTrigger>
-          </TabsList>
+          <div className="relative">
+            <div className="overflow-x-auto scrollbar-hide">
+              <TabsList className="inline-flex w-full md:grid md:grid-cols-5 min-w-max md:min-w-0 h-auto md:h-10">
+                <TabsTrigger value="calendar" className="flex items-center gap-2 px-4 py-3 md:py-2 whitespace-nowrap">
+                  <CalendarDays className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm md:text-base">{t("calendarTab")}</span>
+                </TabsTrigger>
+                <TabsTrigger value="courts" className="flex items-center gap-2 px-4 py-3 md:py-2 whitespace-nowrap">
+                  <Settings className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm md:text-base">{t("courtsTab")}</span>
+                </TabsTrigger>
+                <TabsTrigger value="users" className="flex items-center gap-2 px-4 py-3 md:py-2 whitespace-nowrap">
+                  <Users className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm md:text-base">{t("usersTab")}</span>
+                </TabsTrigger>
+                <TabsTrigger value="reports" className="flex items-center gap-2 px-4 py-3 md:py-2 whitespace-nowrap">
+                  <BarChart3 className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm md:text-base">{t("reportsTab")}</span>
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="flex items-center gap-2 px-4 py-3 md:py-2 whitespace-nowrap">
+                  <BarChart3 className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm md:text-base">{t("analyticsTab")}</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </div>
 
           <TabsContent value="calendar" className="space-y-6">
             <div className="grid lg:grid-cols-3 gap-6">

@@ -46,8 +46,11 @@ export function Navigation() {
             <Link href="/my-bookings" className="text-foreground hover:text-primary transition-colors">
               {t("navMyBookings")}
             </Link>
-            <Link href="/admin" className="text-foreground hover:text-primary transition-colors">
-              {t("navAdmin")}
+            <Link href="/admin">
+              <Button variant="default" size="sm" className="bg-primary hover:bg-primary/90">
+                <Settings className="w-4 h-4 mr-2" />
+                {t("navAdmin")}
+              </Button>
             </Link>
             <LanguageToggle />
             {mongoOk === false && (
@@ -86,11 +89,12 @@ export function Navigation() {
               </Link>
               <Link
                 href="/admin"
-                className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                <Settings className="w-4 h-4" />
-                {t("navAdmin")}
+                <Button variant="default" size="sm" className="w-full bg-primary hover:bg-primary/90">
+                  <Settings className="w-4 h-4 mr-2" />
+                  {t("navAdmin")}
+                </Button>
               </Link>
               <LanguageToggle className="w-fit" />
             </div>
