@@ -9,6 +9,8 @@ import { Clock, MapPin, Star } from "lucide-react"
 import { BookingModal } from "@/components/booking-modal"
 import { initializeDemoData, getDemoCourts, getDemoAvailability } from "@/lib/demo-data"
 import type { Court } from "@/lib/models/Court"
+import { useLanguage } from "@/components/language-provider"
+import { localizeCourtDescription, localizeCourtName } from "@/lib/i18n"
 
 interface TimeSlot {
   time: string
@@ -17,6 +19,7 @@ interface TimeSlot {
 }
 
 export function CourtBooking() {
+  const { t, locale, language } = useLanguage()
   const [courts, setCourts] = useState<Court[]>([])
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [selectedCourt, setSelectedCourt] = useState<Court | null>(null)
@@ -49,7 +52,10 @@ export function CourtBooking() {
       console.error("❌ No court selected for availability check")
       return
     }
-    const dateStr = selectedDate.toISOString().split("T")[0]
+    const year = selectedDate.getFullYear()
+    const month = String(selectedDate.getMonth() + 1).padStart(2, "0")
+    const day = String(selectedDate.getDate()).padStart(2, "0")
+    const dateStr = `${year}-${month}-${day}`
     console.log(`🔍 Fetching availability for ${selectedCourt.name} on ${dateStr}...`)
     const slots = getDemoAvailability(selectedCourt._id!, dateStr)
     console.log(`✓ Available slots: ${slots.filter(s => s.isAvailable).length}/${slots.length}`, slots)
@@ -71,7 +77,7 @@ export function CourtBooking() {
   }
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString(locale, {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -96,9 +102,9 @@ export function CourtBooking() {
     <section id="court-booking" className="py-20 px-4 bg-muted/30">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-balance">Choose Your Court & Time</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-balance">{t("bookingTitle")}</h2>
           <p className="text-xl text-muted-foreground text-pretty max-w-2xl mx-auto">
-            Select from our premium courts and find the perfect time slot for your game
+            {t("bookingSubtitle")}
           </p>
         </div>
 
@@ -106,7 +112,7 @@ export function CourtBooking() {
           {/* Court Selection */}
           <div className="lg:col-span-2 space-y-6">
             <div>
-              <h3 className="text-2xl font-semibold mb-4">Available Courts</h3>
+              <h3 className="text-2xl font-semibold mb-4">{t("availableCourts")}</h3>
               <div className="grid gap-4">
                 {courts.length > 0 ? (
                   courts.map((court) => (
@@ -121,12 +127,12 @@ export function CourtBooking() {
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <h4 className="text-xl font-semibold">{court.name}</h4>
+                              <h4 className="text-xl font-semibold">{localizeCourtName(court.name, language)}</h4>
                               <Badge variant="secondary" className="bg-primary/10 text-primary">
-                                ${court.pricePerHour}/hour
+                                ${court.pricePerHour}{t("perHour")}
                               </Badge>
                             </div>
-                            <p className="text-muted-foreground mb-3">{court.description}</p>
+                            <p className="text-muted-foreground mb-3">{localizeCourtDescription(court.description || "", language)}</p>
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Clock className="w-4 h-4" />
@@ -136,7 +142,7 @@ export function CourtBooking() {
                               </div>
                               <div className="flex items-center gap-1">
                                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                <span>4.8 rating</span>
+                                <span>{t("ratingLabel")}</span>
                               </div>
                             </div>
                           </div>
@@ -153,7 +159,7 @@ export function CourtBooking() {
                 ) : (
                   <Card>
                     <CardContent className="p-6 text-center">
-                      <p className="text-muted-foreground">No courts available at the moment.</p>
+                      <p className="text-muted-foreground">{t("noCourts")}</p>
                     </CardContent>
                   </Card>
                 )}
@@ -163,7 +169,7 @@ export function CourtBooking() {
             {/* Time Slots */}
             {selectedCourt && (
               <div>
-                <h3 className="text-2xl font-semibold mb-4">Available Times for {formatDate(selectedDate)}</h3>
+                <h3 className="text-2xl font-semibold mb-4">{t("availableTimesFor")} {formatDate(selectedDate)}</h3>
                 {availableSlots.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {availableSlots.map((slot) => (
@@ -179,14 +185,14 @@ export function CourtBooking() {
                         onClick={() => handleBookSlot(slot)}
                       >
                         <span className="font-semibold">{slot.time}</span>
-                        <span className="text-xs opacity-75">{slot.duration} min</span>
+                        <span className="text-xs opacity-75">{slot.duration} {t("minutesShort")}</span>
                       </Button>
                     ))}
                   </div>
                 ) : (
                   <Card>
                     <CardContent className="p-8 text-center">
-                      <p className="text-muted-foreground">No available slots for this date</p>
+                      <p className="text-muted-foreground">{t("noSlotsDate")}</p>
                     </CardContent>
                   </Card>
                 )}
@@ -200,7 +206,7 @@ export function CourtBooking() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-primary" />
-                  Select Date
+                  {t("selectDate")}
                 </CardTitle>
               </CardHeader>
               <CardContent>

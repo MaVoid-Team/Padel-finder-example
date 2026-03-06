@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts"
 import { Download, TrendingUp, Users, DollarSign, Calendar } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
 
 interface AnalyticsData {
   period: number
@@ -21,6 +22,7 @@ interface AnalyticsData {
 }
 
 export function AdvancedReports() {
+  const { t } = useLanguage()
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [period, setPeriod] = useState("30")
   const [loading, setLoading] = useState(true)
@@ -84,22 +86,22 @@ export function AdvancedReports() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Advanced Reports</h2>
+        <h2 className="text-2xl font-bold">{t("advancedReports")}</h2>
         <div className="flex items-center gap-4">
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 90 days</SelectItem>
-              <SelectItem value="365">Last year</SelectItem>
+              <SelectItem value="7">{t("last7Days")}</SelectItem>
+              <SelectItem value="30">{t("last30Days")}</SelectItem>
+              <SelectItem value="90">{t("last90Days")}</SelectItem>
+              <SelectItem value="365">{t("lastYear")}</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={exportReport} variant="outline">
             <Download className="w-4 h-4 mr-2" />
-            Export CSV
+            {t("exportCsv")}
           </Button>
         </div>
       </div>
@@ -108,47 +110,47 @@ export function AdvancedReports() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Booking Value</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("avgBookingValue")}</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">${analytics.averageBookingValue}</div>
-            <p className="text-xs text-muted-foreground">Per reservation</p>
+            <p className="text-xs text-muted-foreground">{t("perReservation")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Repeat Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("repeatRate")}</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{analytics.repeatCustomerRate}%</div>
-            <p className="text-xs text-muted-foreground">Customer retention</p>
+            <p className="text-xs text-muted-foreground">{t("customerRetention")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Unique Customers</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("uniqueCustomers")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{analytics.uniqueCustomers}</div>
-            <p className="text-xs text-muted-foreground">Individual players</p>
+            <p className="text-xs text-muted-foreground">{t("individualPlayers")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Daily Average</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dailyAverage")}</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
               {Math.round(analytics.totalBookings / analytics.period)}
             </div>
-            <p className="text-xs text-muted-foreground">Bookings per day</p>
+            <p className="text-xs text-muted-foreground">{t("bookingsPerDay")}</p>
           </CardContent>
         </Card>
       </div>
@@ -157,7 +159,7 @@ export function AdvancedReports() {
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Revenue Trend</CardTitle>
+            <CardTitle>{t("revenueTrend")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -165,7 +167,7 @@ export function AdvancedReports() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
-                <Tooltip formatter={(value) => [`$${value}`, "Revenue"]} />
+                <Tooltip formatter={(value) => [`$${value}`, t("totalRevenue")]} />
                 <Line type="monotone" dataKey="revenue" stroke="#0891b2" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
@@ -174,7 +176,7 @@ export function AdvancedReports() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Peak Hours Analysis</CardTitle>
+            <CardTitle>{t("peakHoursAnalysis")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -193,7 +195,7 @@ export function AdvancedReports() {
       {/* Top Customers */}
       <Card>
         <CardHeader>
-          <CardTitle>Top Customers</CardTitle>
+          <CardTitle>{t("topCustomers")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -210,7 +212,7 @@ export function AdvancedReports() {
                 </div>
                 <div className="text-right">
                   <div className="font-semibold text-primary">${customer.totalSpent}</div>
-                  <div className="text-sm text-muted-foreground">{customer.bookings} bookings</div>
+                  <div className="text-sm text-muted-foreground">{customer.bookings} {t("bookingsCount")}</div>
                 </div>
               </div>
             ))}

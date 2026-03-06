@@ -13,6 +13,8 @@ import { Plus, Edit, Clock, DollarSign } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { saveDemoCourt } from "@/lib/demo-data"
 import type { Court } from "@/lib/models/Court"
+import { useLanguage } from "@/components/language-provider"
+import { localizeCourtDescription, localizeCourtName } from "@/lib/i18n"
 
 interface CourtManagementProps {
   courts: Court[]
@@ -20,6 +22,7 @@ interface CourtManagementProps {
 }
 
 export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
+  const { t, language } = useLanguage()
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [editingCourt, setEditingCourt] = useState<Court | null>(null)
   const [formData, setFormData] = useState({
@@ -53,10 +56,10 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
       })
 
       toast({
-        title: editingCourt ? "Court Updated" : "Court Created",
+        title: editingCourt ? t("courtUpdated") : t("courtCreated"),
         description: editingCourt 
-          ? "Court has been updated successfully"
-          : "New court has been added successfully",
+          ? t("courtUpdatedSuccess")
+          : t("courtCreatedSuccess"),
       })
 
       setShowAddDialog(false)
@@ -71,8 +74,8 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
       onUpdate()
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save court",
+        title: t("error"),
+        description: t("failedSaveCourt"),
         variant: "destructive",
       })
     } finally {
@@ -95,7 +98,7 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Court Management</h2>
+        <h2 className="text-2xl font-bold">{t("courtManagement")}</h2>
         <Dialog open={showAddDialog} onOpenChange={(open) => {
           setShowAddDialog(open)
           if (!open) {
@@ -112,36 +115,36 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90">
               <Plus className="w-4 h-4 mr-2" />
-              Add Court
+              {t("addCourt")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingCourt ? "Edit Court" : "Add New Court"}</DialogTitle>
+              <DialogTitle>{editingCourt ? t("editCourt") : t("addNewCourt")}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Court Name</Label>
+                <Label htmlFor="name">{t("courtName")}</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g., Court 1 - Premium"
+                  placeholder={t("courtNameExample")}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t("description")}</Label>
                 <Input
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Court description"
+                  placeholder={t("courtDescriptionPlaceholder")}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="openTime">Open Time</Label>
+                  <Label htmlFor="openTime">{t("openTime")}</Label>
                   <Input
                     id="openTime"
                     type="time"
@@ -150,7 +153,7 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="closeTime">Close Time</Label>
+                  <Label htmlFor="closeTime">{t("closeTime")}</Label>
                   <Input
                     id="closeTime"
                     type="time"
@@ -160,7 +163,7 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pricePerHour">Price per Hour ($)</Label>
+                <Label htmlFor="pricePerHour">{t("pricePerHourLabel")}</Label>
                 <Input
                   id="pricePerHour"
                   type="number"
@@ -178,10 +181,10 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
                   className="flex-1"
                   disabled={loading}
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button type="submit" className="flex-1 bg-primary hover:bg-primary/90" disabled={loading}>
-                  {loading ? editingCourt ? "Updating..." : "Creating..." : editingCourt ? "Update Court" : "Create Court"}
+                  {loading ? (editingCourt ? t("updating") : t("creating")) : (editingCourt ? t("updateCourt") : t("createCourt"))}
                 </Button>
               </div>
             </form>
@@ -195,20 +198,20 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-3">
-                  {court.name}
+                  {localizeCourtName(court.name, language)}
                   <Badge variant={court.isActive ? "default" : "secondary"}>
-                    {court.isActive ? "Active" : "Inactive"}
+                    {court.isActive ? t("active") : t("inactive")}
                   </Badge>
                 </CardTitle>
                 <Button variant="outline" size="sm" onClick={() => handleEdit(court)}>
                   <Edit className="w-4 h-4 mr-2" />
-                  Edit
+                  {t("edit")}
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <p className="text-muted-foreground">{court.description}</p>
+                <p className="text-muted-foreground">{localizeCourtDescription(court.description || "", language)}</p>
                 <div className="flex items-center gap-6 text-sm">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-primary" />
@@ -218,7 +221,7 @@ export function CourtManagement({ courts, onUpdate }: CourtManagementProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     <DollarSign className="w-4 h-4 text-primary" />
-                    <span>${court.pricePerHour}/hour</span>
+                    <span>${court.pricePerHour}{t("perHour")}</span>
                   </div>
                 </div>
               </div>

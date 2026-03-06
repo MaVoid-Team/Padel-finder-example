@@ -2,8 +2,11 @@
 
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, Users } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
 
 export function HeroSection() {
+  const { t } = useLanguage()
+
   const scrollToBooking = () => {
     document.getElementById("court-booking")?.scrollIntoView({ behavior: "smooth" })
   }
@@ -23,26 +26,26 @@ export function HeroSection() {
       {/* Content */}
       <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
         <h1 className="text-5xl md:text-7xl font-bold mb-6 text-balance">
-          Book Your Perfect
-          <span className="text-primary block mt-2">Padel Court</span>
+          {t("heroTitleLine1")}
+          <span className="text-primary block mt-2">{t("heroTitleLine2")}</span>
         </h1>
 
         <p className="text-xl md:text-2xl mb-8 text-gray-200 text-pretty max-w-2xl mx-auto">
-          Experience the thrill of padel on our premium courts. Book instantly, play immediately.
+          {t("heroSubtitle")}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
           <div className="flex items-center gap-2 text-lg">
             <Calendar className="w-5 h-5 text-primary" />
-            <span>Instant Booking</span>
+            <span>{t("heroInstantBooking")}</span>
           </div>
           <div className="flex items-center gap-2 text-lg">
             <Clock className="w-5 h-5 text-primary" />
-            <span>90-Min Sessions</span>
+            <span>{t("heroSessionDuration")}</span>
           </div>
           <div className="flex items-center gap-2 text-lg">
             <Users className="w-5 h-5 text-primary" />
-            <span>Up to 4 Players</span>
+            <span>{t("heroPlayers")}</span>
           </div>
         </div>
 
@@ -51,7 +54,7 @@ export function HeroSection() {
           className="text-xl px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground"
           onClick={scrollToBooking}
         >
-          Book Now - No Login Required
+          {t("heroCta")}
         </Button>
       </div>
 

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 import { TrendingUp, Users, Clock, DollarSign } from "lucide-react"
 import type { Booking } from "@/lib/models/Booking"
+import { useLanguage } from "@/components/language-provider"
 
 interface ReportsSectionProps {
   bookings: Booking[]
@@ -16,6 +17,7 @@ interface ReportsSectionProps {
 }
 
 export function ReportsSection({ bookings, stats }: ReportsSectionProps) {
+  const { t } = useLanguage()
   // Generate hourly booking data
   const hourlyData = Array.from({ length: 14 }, (_, i) => {
     const hour = i + 8 // 8 AM to 9 PM
@@ -45,53 +47,53 @@ export function ReportsSection({ bookings, stats }: ReportsSectionProps) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Reports & Analytics</h2>
+      <h2 className="text-2xl font-bold">{t("reportsAnalytics")}</h2>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Peak Hours</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("peakHours")}</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">2-6 PM</div>
-            <p className="text-xs text-muted-foreground">Most popular time slots</p>
+            <p className="text-xs text-muted-foreground">{t("mostPopularSlots")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Revenue/Day</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("avgRevenueDay")}</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">${Math.round(stats.totalRevenue / 30)}</div>
-            <p className="text-xs text-muted-foreground">Based on last 30 days</p>
+            <p className="text-xs text-muted-foreground">{t("basedLast30")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Repeat Customers</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("repeatCustomers")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
               {Math.round(((stats.totalBookings - stats.activeUsers) / stats.totalBookings) * 100)}%
             </div>
-            <p className="text-xs text-muted-foreground">Customer retention rate</p>
+            <p className="text-xs text-muted-foreground">{t("retentionRate")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Growth Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("growthRate")}</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">+12%</div>
-            <p className="text-xs text-muted-foreground">Month over month</p>
+            <p className="text-xs text-muted-foreground">{t("monthOverMonth")}</p>
           </CardContent>
         </Card>
       </div>
@@ -100,7 +102,7 @@ export function ReportsSection({ bookings, stats }: ReportsSectionProps) {
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Bookings by Hour</CardTitle>
+            <CardTitle>{t("bookingsByHour")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -117,7 +119,7 @@ export function ReportsSection({ bookings, stats }: ReportsSectionProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Court Usage Distribution</CardTitle>
+            <CardTitle>{t("courtUsageDistribution")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>

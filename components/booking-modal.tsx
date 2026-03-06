@@ -11,6 +11,8 @@ import { Calendar, Clock, CreditCard, User, Mail, Phone } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { addDemoBooking } from "@/lib/demo-data"
 import type { Court } from "@/lib/models/Court"
+import { useLanguage } from "@/components/language-provider"
+import { interpolate, localizeCourtName } from "@/lib/i18n"
 
 interface TimeSlot {
   time: string
@@ -27,6 +29,14 @@ interface BookingModalProps {
 }
 
 export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: BookingModalProps) {
+    const toLocalDateKey = (value: Date) => {
+      const year = value.getFullYear()
+      const month = String(value.getMonth() + 1).padStart(2, "0")
+      const day = String(value.getDate()).padStart(2, "0")
+      return `${year}-${month}-${day}`
+    }
+
+  const { t, locale, language } = useLanguage()
   const [formData, setFormData] = useState({
     playerName: "",
     playerEmail: "",
@@ -43,8 +53,8 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
     // Validate required fields
     if (!formData.playerName.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Please enter your name",
+        title: t("validationError"),
+        description: t("enterNameError"),
         variant: "destructive",
       })
       return
@@ -52,8 +62,8 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
     
     if (!formData.playerEmail.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Please enter your email",
+        title: t("validationError"),
+        description: t("enterEmailError"),
         variant: "destructive",
       })
       return
@@ -63,8 +73,8 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(formData.playerEmail)) {
       toast({
-        title: "Validation Error",
-        description: "Please enter a valid email",
+        title: t("validationError"),
+        description: t("validEmailError"),
         variant: "destructive",
       })
       return
@@ -78,7 +88,7 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
       const booking = addDemoBooking({
         courtId: court._id!,
         courtName: court.name,
-        date: date.toISOString().split("T")[0],
+        date: toLocalDateKey(date),
         time: timeSlot.time,
         duration: timeSlot.duration,
         playerName: formData.playerName,
@@ -91,8 +101,12 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
       console.log("✓ Booking created successfully:", booking)
 
       toast({
-        title: "Booking Confirmed! 🎉",
-        description: `Your court is reserved for ${date.toLocaleDateString()} at ${timeSlot.time}. Confirmation email sent to ${formData.playerEmail}`,
+        title: t("bookingConfirmedTitle"),
+        description: interpolate(t("bookingConfirmedDescription"), {
+          date: date.toLocaleDateString(locale),
+          time: timeSlot.time,
+          email: formData.playerEmail,
+        }),
       })
 
       // Reset form
@@ -105,8 +119,8 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
     } catch (error) {
       console.error("❌ Booking error:", error)
       toast({
-        title: "Booking Failed",
-        description: error instanceof Error ? error.message : "Please try again",
+        title: t("bookingFailed"),
+        description: error instanceof Error ? error.message : t("tryAgain"),
         variant: "destructive",
       })
     } finally {
@@ -115,7 +129,7 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
   }
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString(locale, {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -127,7 +141,7 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">Complete Your Booking</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-center">{t("bookingModalTitle")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -139,15 +153,15 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="w-4 h-4 text-primary" />
-                <span className="font-medium">{timeSlot.time} ({timeSlot.duration} minutes)</span>
+                <span className="font-medium">{timeSlot.time} ({timeSlot.duration} {t("minutesWord")})</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <CreditCard className="w-4 h-4 text-primary" />
-                <span className="font-medium">{court.name}</span>
+                <span className="font-medium">{localizeCourtName(court.name, language)}</span>
               </div>
               <div className="pt-2 border-t border-primary/20">
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold">Total Price:</span>
+                  <span className="font-semibold">{t("totalPrice")}</span>
                   <span className="text-xl font-bold text-primary">${totalPrice.toFixed(2)}</span>
                 </div>
               </div>
@@ -158,7 +172,7 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
             <div className="space-y-2">
               <Label htmlFor="playerName" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Full Name *
+                {t("fullName")}
               </Label>
               <Input
                 id="playerName"
@@ -166,14 +180,14 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
                 required
                 value={formData.playerName}
                 onChange={(e) => setFormData({ ...formData, playerName: e.target.value })}
-                placeholder="Enter your full name"
+                placeholder={t("enterFullName")}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="playerEmail" className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
-                Email Address *
+                {t("emailAddress")}
               </Label>
               <Input
                 id="playerEmail"
@@ -181,21 +195,21 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
                 required
                 value={formData.playerEmail}
                 onChange={(e) => setFormData({ ...formData, playerEmail: e.target.value })}
-                placeholder="Enter your email"
+                placeholder={t("enterEmail")}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="playerPhone" className="flex items-center gap-2">
                 <Phone className="w-4 h-4" />
-                Phone Number (Optional)
+                {t("phoneOptional")}
               </Label>
               <Input
                 id="playerPhone"
                 type="tel"
                 value={formData.playerPhone}
                 onChange={(e) => setFormData({ ...formData, playerPhone: e.target.value })}
-                placeholder="Enter your phone number"
+                placeholder={t("enterPhone")}
               />
             </div>
 
@@ -207,10 +221,10 @@ export function BookingModal({ court, date, timeSlot, onClose, onSuccess }: Book
                 className="flex-1 bg-transparent"
                 disabled={loading}
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button type="submit" className="flex-1 bg-primary hover:bg-primary/90" disabled={loading}>
-                {loading ? "Booking..." : `Book for $${totalPrice.toFixed(2)}`}
+                {loading ? t("bookingProgress") : `${t("bookFor")} $${totalPrice.toFixed(2)}`}
               </Button>
             </div>
           </form>

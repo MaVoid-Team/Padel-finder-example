@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from '@/components/ui/toaster'
+import { LanguageProvider } from '@/components/language-provider'
+import { DemoModeBanner } from '@/components/demo-mode-banner'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'PadelClub - Book Your Court',
-  description: 'Premium padel court booking platform',
+  title: 'بادل كلوب - احجز ملعبك',
+  description: 'منصة مميزة لحجز ملاعب البادل',
   generator: 'v0.app',
 }
 
@@ -15,21 +17,19 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans">
-        {process.env.MONGODB_URI ? null : (
-          <div className="w-full bg-blue-50 border-b border-blue-200 text-blue-900 py-3 text-center text-sm z-60">
-            <strong>Demo Mode:</strong> All data is stored locally in your browser. Refresh the page to keep your bookings!
-          </div>
-        )}
-        {children}
-        <Toaster />
-        <Analytics />
+        <LanguageProvider>
+          <DemoModeBanner />
+          {children}
+          <Toaster />
+          <Analytics />
+        </LanguageProvider>
       </body>
     </html>
   )

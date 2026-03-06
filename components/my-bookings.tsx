@@ -12,8 +12,11 @@ import { Calendar, Clock, Mail, User, Phone, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { initializeDemoData, getDemoBookings, cancelDemoBooking } from "@/lib/demo-data"
 import type { Booking } from "@/lib/models/Booking"
+import { useLanguage } from "@/components/language-provider"
+import { interpolate, localizeCourtName, localizeStatus } from "@/lib/i18n"
 
 export function MyBookings() {
+  const { t, locale, language } = useLanguage()
   const [email, setEmail] = useState("")
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(false)
@@ -39,13 +42,13 @@ export function MyBookings() {
       setBookings(userBookings)
       setShowLookup(false)
       toast({
-        title: "Bookings Found!",
-        description: `Found ${userBookings.length} booking(s) for ${email}`,
+        title: t("bookingsFoundTitle"),
+        description: interpolate(t("bookingsFoundDescription"), { count: userBookings.length, email }),
       })
     } else {
       toast({
-        title: "No bookings found",
-        description: "No bookings found for this email address",
+        title: t("noBookingsFound"),
+        description: t("noBookingsForEmail"),
         variant: "destructive",
       })
     }
@@ -61,21 +64,21 @@ export function MyBookings() {
       if (cancelled) {
         setBookings(bookings.map(b => b._id === bookingId ? cancelled : b))
         toast({
-          title: "Booking Cancelled",
-          description: "Your booking has been cancelled successfully",
+          title: t("bookingCancelled"),
+          description: t("bookingCancelledSuccess"),
         })
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to cancel booking",
+        title: t("error"),
+        description: t("failedCancelBooking"),
         variant: "destructive",
       })
     }
   }
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    return new Date(dateStr).toLocaleDateString(locale, {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -102,26 +105,26 @@ export function MyBookings() {
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold">Find Your Bookings</CardTitle>
-              <p className="text-muted-foreground">Enter your email to view and manage your reservations</p>
+              <CardTitle className="text-2xl font-bold">{t("myBookingsLookupTitle")}</CardTitle>
+              <p className="text-muted-foreground">{t("myBookingsLookupSubtitle")}</p>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleLookup} className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <Mail className="w-4 h-4 text-primary" />
-                    Email Address
+                    {t("emailAddress")}
                   </div>
                   <Input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address"
+                    placeholder={t("enterEmail")}
                     required
                   />
                 </div>
                 <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loading}>
-                  {loading ? "Searching..." : "Find My Bookings"}
+                  {loading ? t("searching") : t("findMyBookings")}
                 </Button>
               </form>
             </CardContent>
@@ -136,12 +139,12 @@ export function MyBookings() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">My Bookings</h1>
-            <p className="text-muted-foreground">Manage your court reservations</p>
+            <h1 className="text-3xl font-bold">{t("myBookingsTitle")}</h1>
+            <p className="text-muted-foreground">{t("myBookingsSubtitle")}</p>
           </div>
           <Button variant="outline" onClick={() => setShowLookup(true)}>
             <Mail className="w-4 h-4 mr-2" />
-            Different Email
+            {t("differentEmail")}
           </Button>
         </div>
 
@@ -153,8 +156,8 @@ export function MyBookings() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-xl font-semibold">{booking.courtName}</h3>
-                        <Badge variant={getStatusColor(booking.status)}>{booking.status}</Badge>
+                        <h3 className="text-xl font-semibold">{localizeCourtName(booking.courtName, language)}</h3>
+                        <Badge variant={getStatusColor(booking.status)}>{localizeStatus(booking.status, language)}</Badge>
                       </div>
 
                       <div className="grid md:grid-cols-2 gap-4 text-sm">
@@ -165,7 +168,7 @@ export function MyBookings() {
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-primary" />
                           <span>
-                            {booking.time} ({booking.duration} minutes)
+                            {booking.time} ({booking.duration} {t("minutesWord")})
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -186,9 +189,9 @@ export function MyBookings() {
 
                       <div className="mt-4 pt-4 border-t">
                         <div className="flex items-center justify-between">
-                          <span className="text-lg font-semibold">Total: ${booking.totalPrice}</span>
+                          <span className="text-lg font-semibold">{t("total")} ${booking.totalPrice}</span>
                           <div className="text-sm text-muted-foreground">
-                            Booked on {new Date(booking.createdAt).toLocaleDateString()}
+                            {t("bookedOn")} {new Date(booking.createdAt).toLocaleDateString(locale)}
                           </div>
                         </div>
                       </div>
@@ -204,31 +207,31 @@ export function MyBookings() {
                               className="text-destructive hover:text-destructive bg-transparent"
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
-                              Cancel
+                              {t("cancel")}
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Cancel Booking</DialogTitle>
+                              <DialogTitle>{t("cancelBookingTitle")}</DialogTitle>
                             </DialogHeader>
                             <div className="space-y-4">
-                              <p>Are you sure you want to cancel this booking?</p>
+                              <p>{t("cancelBookingConfirm")}</p>
                               <div className="p-4 bg-muted rounded-lg">
-                                <div className="font-medium">{booking.courtName}</div>
+                                <div className="font-medium">{localizeCourtName(booking.courtName, language)}</div>
                                 <div className="text-sm text-muted-foreground">
-                                  {formatDate(booking.date)} at {booking.time}
+                                  {formatDate(booking.date)} {t("atWord")} {booking.time}
                                 </div>
                               </div>
                               <div className="flex gap-3">
                                 <Button variant="outline" className="flex-1 bg-transparent">
-                                  Keep Booking
+                                  {t("keepBooking")}
                                 </Button>
                                 <Button
                                   variant="destructive"
                                   className="flex-1"
                                   onClick={() => handleCancelBooking(booking._id!)}
                                 >
-                                  Cancel Booking
+                                  {t("cancelBooking")}
                                 </Button>
                               </div>
                             </div>
@@ -245,8 +248,8 @@ export function MyBookings() {
           <Card>
             <CardContent className="p-8 text-center">
               <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">No bookings found</h3>
-              <p className="text-muted-foreground">You don't have any bookings yet. Book a court to get started!</p>
+              <h3 className="text-lg font-semibold mb-2">{t("noBookingsFound")}</h3>
+              <p className="text-muted-foreground">{t("noBookingsYet")}</p>
             </CardContent>
           </Card>
         )}

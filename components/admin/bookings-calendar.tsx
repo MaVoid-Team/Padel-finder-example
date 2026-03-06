@@ -6,25 +6,34 @@ import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 import { Clock, User, MapPin } from "lucide-react"
 import type { Booking } from "@/lib/models/Booking"
-import type { Court } from "@/lib/models/Court"
+import { useLanguage } from "@/components/language-provider"
+import { localizeCourtName, localizeStatus } from "@/lib/i18n"
+import { arSA, enUS } from "date-fns/locale"
 
 interface BookingsCalendarProps {
   bookings: Booking[]
-  courts: Court[]
 }
 
-export function BookingsCalendar({ bookings, courts }: BookingsCalendarProps) {
+export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
+  const { t, locale, language, dir } = useLanguage()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 
+  const toLocalDateKey = (date: Date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const day = String(date.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
+  }
+
   const getBookingsForDate = (date: Date) => {
-    const dateStr = date.toISOString().split("T")[0]
+    const dateStr = toLocalDateKey(date)
     return bookings.filter((booking) => booking.date === dateStr)
   }
 
   const selectedDateBookings = getBookingsForDate(selectedDate)
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString(locale, {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -38,7 +47,7 @@ export function BookingsCalendar({ bookings, courts }: BookingsCalendarProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-primary" />
-            Calendar View
+            {t("calendarView")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -46,6 +55,8 @@ export function BookingsCalendar({ bookings, courts }: BookingsCalendarProps) {
             mode="single"
             selected={selectedDate}
             onSelect={(date) => date && setSelectedDate(date)}
+            locale={language === "ar" ? arSA : enUS}
+            dir={dir}
             className="rounded-md border-0"
           />
         </CardContent>
@@ -53,7 +64,7 @@ export function BookingsCalendar({ bookings, courts }: BookingsCalendarProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Bookings for {formatDate(selectedDate)}</CardTitle>
+          <CardTitle>{t("bookingsForDate")} {formatDate(selectedDate)}</CardTitle>
         </CardHeader>
         <CardContent>
           {selectedDateBookings.length > 0 ? (
@@ -67,7 +78,7 @@ export function BookingsCalendar({ bookings, courts }: BookingsCalendarProps) {
                         <Clock className="w-4 h-4 text-primary" />
                         <span className="font-medium">{booking.time}</span>
                       </div>
-                      <Badge variant={booking.status === "confirmed" ? "default" : "secondary"}>{booking.status}</Badge>
+                      <Badge variant={booking.status === "confirmed" ? "default" : "secondary"}>{localizeStatus(booking.status, language)}</Badge>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <User className="w-4 h-4" />
@@ -75,7 +86,7 @@ export function BookingsCalendar({ bookings, courts }: BookingsCalendarProps) {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <MapPin className="w-4 h-4" />
-                      <span>{booking.courtName}</span>
+                      <span>{localizeCourtName(booking.courtName, language)}</span>
                     </div>
                     <div className="text-sm font-medium text-primary">${booking.totalPrice}</div>
                   </div>
@@ -84,7 +95,7 @@ export function BookingsCalendar({ bookings, courts }: BookingsCalendarProps) {
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No bookings for this date</p>
+              <p>{t("noBookingsDate")}</p>
             </div>
           )}
         </CardContent>

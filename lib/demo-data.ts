@@ -17,8 +17,8 @@ export interface DemoUser {
 const generateDemoCourts = (): Court[] => [
   {
     _id: 'court_1',
-    name: 'Court 1 - Premium',
-    description: 'Indoor court with premium lighting and AC',
+    name: 'الملعب 1 - مميز',
+    description: 'ملعب داخلي بإضاءة مميزة وتكييف',
     isActive: true,
     openTime: '06:00',
     closeTime: '23:00',
@@ -28,8 +28,8 @@ const generateDemoCourts = (): Court[] => [
   },
   {
     _id: 'court_2',
-    name: 'Court 2 - Standard',
-    description: 'Standard indoor court',
+    name: 'الملعب 2 - قياسي',
+    description: 'ملعب داخلي قياسي',
     isActive: true,
     openTime: '06:00',
     closeTime: '23:00',
@@ -39,8 +39,8 @@ const generateDemoCourts = (): Court[] => [
   },
   {
     _id: 'court_3',
-    name: 'Court 3 - Outdoor',
-    description: 'Beautiful outdoor court with natural light',
+    name: 'الملعب 3 - خارجي',
+    description: 'ملعب خارجي رائع بإضاءة طبيعية',
     isActive: true,
     openTime: '08:00',
     closeTime: '20:00',
@@ -50,8 +50,8 @@ const generateDemoCourts = (): Court[] => [
   },
   {
     _id: 'court_4',
-    name: 'Court 4 - Premium Indoor',
-    description: 'Top-tier indoor facility with professional grade equipment',
+    name: 'الملعب 4 - داخلي مميز',
+    description: 'منشأة داخلية عالية المستوى بمعدات احترافية',
     isActive: true,
     openTime: '06:00',
     closeTime: '23:00',

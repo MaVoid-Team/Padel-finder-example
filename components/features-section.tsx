@@ -2,34 +2,37 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
 
 export function FeaturesSection() {
+  const { t } = useLanguage()
+
   const features = [
     {
-      title: "Court Booking",
-      description: "Browse available courts and book your preferred time slot instantly",
-      items: ["4 Premium Courts", "Real-time availability", "Flexible time slots", "Instant confirmation"],
+      title: t("featureCard1Title"),
+      description: t("featureCard1Desc"),
+      items: [t("featureCard1Item1"), t("featureCard1Item2"), t("featureCard1Item3"), t("featureCard1Item4")],
     },
     {
-      title: "Booking Management",
-      description: "Track and manage all your reservations in one place",
-      items: ["View all bookings", "Cancel anytime", "Booking history", "Player details"],
+      title: t("featureCard2Title"),
+      description: t("featureCard2Desc"),
+      items: [t("featureCard2Item1"), t("featureCard2Item2"), t("featureCard2Item3"), t("featureCard2Item4")],
     },
     {
-      title: "Admin Dashboard",
-      description: "Complete control over court operations and analytics",
+      title: t("featureCard3Title"),
+      description: t("featureCard3Desc"),
       items: [
-        "Revenue tracking",
-        "Court management",
-        "Booking calendar",
-        "User analytics",
-        "Reports & insights",
+        t("featureCard3Item1"),
+        t("featureCard3Item2"),
+        t("featureCard3Item3"),
+        t("featureCard3Item4"),
+        t("featureCard3Item5"),
       ],
     },
     {
-      title: "User Management",
-      description: "Track player information and usage patterns",
-      items: ["Player profiles", "Booking history", "Performance stats", "Contact info"],
+      title: t("featureCard4Title"),
+      description: t("featureCard4Desc"),
+      items: [t("featureCard4Item1"), t("featureCard4Item2"), t("featureCard4Item3"), t("featureCard4Item4")],
     },
   ]
 
@@ -37,9 +40,9 @@ export function FeaturesSection() {
     <section className="py-20 px-4 bg-gradient-to-b from-background to-muted/30">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Demo Features</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">{t("featuresTitle")}</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Explore all the features of PadelClub. This is a fully functional demo with realistic data and interactions.
+            {t("featuresSubtitle")}
           </p>
         </div>
 
@@ -66,27 +69,25 @@ export function FeaturesSection() {
 
         <Card className="mt-12 bg-primary/5 border-primary/20">
           <CardHeader>
-            <CardTitle>How to Use This Demo</CardTitle>
+            <CardTitle>{t("howToUseDemo")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h4 className="font-semibold mb-2">1. Book a Court</h4>
+              <h4 className="font-semibold mb-2">{t("howToStep1Title")}</h4>
               <p className="text-muted-foreground">
-                Go to "Book Courts" and select a court, date, and time slot. Fill in your details and complete the booking.
-                Data is saved locally in your browser.
+                {t("howToStep1Desc")}
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">2. Check Your Bookings</h4>
+              <h4 className="font-semibold mb-2">{t("howToStep2Title")}</h4>
               <p className="text-muted-foreground">
-                Visit "My Bookings" and search for your email to see all your reservations. You can cancel bookings here.
+                {t("howToStep2Desc")}
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">3. Admin Dashboard</h4>
+              <h4 className="font-semibold mb-2">{t("howToStep3Title")}</h4>
               <p className="text-muted-foreground">
-                Access the "Admin" section to see analytics, manage courts, view user bookings, and generate reports. All
-                features are fully interactive!
+                {t("howToStep3Desc")}
               </p>
             </div>
           </CardContent>
