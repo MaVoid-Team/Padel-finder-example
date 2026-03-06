@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CalendarDays, Users, DollarSign, Clock, Plus, Settings, BarChart3 } from "lucide-react"
-import { BookingsCalendar } from "@/components/admin/bookings-calendar"
 import { CourtManagement } from "@/components/admin/court-management"
 import { UserManagement } from "@/components/admin/user-management"
 import { ReportsSection } from "@/components/admin/reports-section"
@@ -142,14 +141,11 @@ export function AdminDashboard() {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="calendar" className="space-y-6">
+        <Tabs defaultValue="reports" className="space-y-6">
           <div className="relative">
             <div className="overflow-x-auto scrollbar-hide">
-              <TabsList className="inline-flex w-full md:grid md:grid-cols-5 min-w-max md:min-w-0 h-auto md:h-10">
-                <TabsTrigger value="calendar" className="flex items-center gap-2 px-4 py-3 md:py-2 whitespace-nowrap">
-                  <CalendarDays className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-sm md:text-base">{t("calendarTab")}</span>
-                </TabsTrigger>
+              <TabsList className="inline-flex w-full md:grid md:grid-cols-4 min-w-max md:min-w-0 h-auto md:h-10">
+
                 <TabsTrigger value="courts" className="flex items-center gap-2 px-4 py-3 md:py-2 whitespace-nowrap">
                   <Settings className="w-4 h-4 flex-shrink-0" />
                   <span className="text-sm md:text-base">{t("courtsTab")}</span>
@@ -169,36 +165,6 @@ export function AdminDashboard() {
               </TabsList>
             </div>
           </div>
-
-          <TabsContent value="calendar" className="space-y-6">
-            <div className="grid lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <BookingsCalendar bookings={allBookings} />
-              </div>
-              <div>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{t("recentBookings")}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {recentBookings.map((booking) => (
-                      <div key={booking._id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <div>
-                          <p className="font-medium">{booking.playerName}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {localizeCourtName(booking.courtName, language)} - {booking.date} {t("atWord")} {booking.time}
-                          </p>
-                        </div>
-                        <Badge variant={booking.status === "confirmed" ? "default" : "secondary"}>
-                          {localizeStatus(booking.status, language)}
-                        </Badge>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </TabsContent>
 
           <TabsContent value="courts">
             <CourtManagement courts={courts} onUpdate={fetchDashboardData} />
